@@ -8,7 +8,7 @@ from io import BytesIO
 # 页面配置
 # ============================================================
 st.set_page_config(
-    page_title="AI Financial Advisor",
+    page_title="PnLytics",
     page_icon="📊",
     layout="wide"
 )
@@ -210,9 +210,9 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### About")
-    st.markdown("**AI Financial Advisor v2.0**")
-    st.markdown("Built by Alex Wu")
-    st.markdown("Turns complex financial data into actionable insights for small business owners.")
+    st.markdown("**PnLytics**")
+    st.markdown("PnLytics Analytics")
+    st.markdown("Turns complex financial data into actionable insights for smaill business owners.")
 
 # ============================================================
 # 主页面逻辑
