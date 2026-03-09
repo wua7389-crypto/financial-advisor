@@ -8,18 +8,6 @@ from io import BytesIO
 # 页面配置
 # ============================================================
 st.set_page_config(
-    st.markdown("""
-<style>
-    .stApp {
-        background-color: #0a0a0a;
-        color: #ffffff;
-    }
-    .stSidebar {
-        background-color: #111111;
-    }
-    h1, h2, h3 {
-        color: #00d4aa;
-    }
 </style>
 """, unsafe_allow_html=True)
 page_title="Abacus",
