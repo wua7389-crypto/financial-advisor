@@ -330,9 +330,8 @@ st.markdown(f"""
         letter-spacing: 0.04em;
     }}
 
-     #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    /* header {visibility: hidden;} */ /* Show header to allow sidebar toggle */
+    #MainMenu {{visibility: hidden;}}
+    footer {{visibility: hidden;}}
 
     .stButton > button {{
         background-color: {INDIGO};
