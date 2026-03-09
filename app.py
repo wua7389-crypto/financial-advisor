@@ -8,7 +8,21 @@ from io import BytesIO
 # 页面配置
 # ============================================================
 st.set_page_config(
-    page_title="Canopy",
+    st.markdown("""
+<style>
+    .stApp {
+        background-color: #0a0a0a;
+        color: #ffffff;
+    }
+    .stSidebar {
+        background-color: #111111;
+    }
+    h1, h2, h3 {
+        color: #00d4aa;
+    }
+</style>
+""", unsafe_allow_html=True)
+page_title="Abacus",
     page_icon="📊",
     layout="wide"
 )
@@ -59,7 +73,7 @@ st.markdown("""
 # ============================================================
 # 标题
 # ============================================================
-st.markdown('<div class="main-header">Canopy</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-header">Abacus</div>', unsafe_allow_html=True)
 st.markdown('<div class="sub-header">Upload your financial data. Get instant insights. Make smarter decisions.</div>', unsafe_allow_html=True)
 
 # ============================================================
