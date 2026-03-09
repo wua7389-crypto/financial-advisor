@@ -4,9 +4,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from io import BytesIO
 
-# ============================================================
 # 页面配置
-# ============================================================
 st.set_page_config(
 </style>
 """, unsafe_allow_html=True)
@@ -15,9 +13,7 @@ page_title="Abacus",
     layout="wide"
 )
 
-# ============================================================
 # 自定义样式
-# ============================================================
 st.markdown("""
 <style>
     .main-header {
