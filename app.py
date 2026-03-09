@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 from io import BytesIO
 
@@ -9,19 +8,242 @@ from io import BytesIO
 # ============================================================
 st.set_page_config(
     page_title="Abacus",
-    page_icon="◧",
+    page_icon="\u25e7",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # ============================================================
-# Custom CSS — White + Indigo accent, clean & intellectual
+# Color Palette
 # ============================================================
 INDIGO = "#3F51B5"
 INDIGO_DARK = "#283593"
 INDIGO_LIGHT = "#C5CAE9"
 INDIGO_BG = "#E8EAF6"
 
+LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663291964821/QjDLltQWooriJzwW.png"
+
+# ============================================================
+# Translations
+# ============================================================
+TRANSLATIONS = {
+    "en": {
+        "app_name": "Abacus",
+        "tagline": "Financial clarity, simplified.",
+        "data_source": "Data Source",
+        "upload_file": "Upload File",
+        "demo_data": "Demo Data",
+        "upload_label": "Upload your financial data",
+        "upload_help": "Excel or CSV with columns: Month, Revenue, and expense categories",
+        "loaded_rows": "Loaded {n} rows",
+        "using_sample": "Using sample data",
+        "sidebar_desc": "Upload monthly revenue and expense data. Abacus generates a diagnostic report with actionable insights.",
+        "landing_headline": "Upload your financial data. Get a clear diagnostic in seconds.",
+        "landing_sub": "No jargon, no complexity \u2014 just the numbers that matter.",
+        "landing_hint": "Use the sidebar to upload an Excel or CSV file, or select Demo Data to explore.",
+        "how_title": "How it works",
+        "how_1": "Upload a spreadsheet with monthly revenue and expenses.",
+        "how_2": "Abacus calculates margins, trends, and risk indicators.",
+        "how_3": "Read your diagnostic report and act on the insights.",
+        "footer": "Abacus \u2014 clarity over complexity",
+        "report_title": "Financial Diagnostic Report",
+        "revenue": "Revenue",
+        "expenses": "Expenses",
+        "net_profit": "Net Profit",
+        "net_margin": "Net Margin",
+        "growth": "Growth",
+        "health_check": "Health Check",
+        "gross_margin": "Gross Margin",
+        "revenue_growth": "Revenue Growth",
+        "profitable_months": "Profitable Months",
+        "healthy": "Healthy",
+        "caution": "Caution",
+        "at_risk": "At Risk",
+        "tab_trends": "Trends",
+        "tab_costs": "Cost Structure",
+        "tab_data": "Data",
+        "tab_insights": "Insights",
+        "tab_about": "About",
+        "rev_vs_profit": "Revenue vs Net Profit",
+        "monthly_margin": "Monthly Profit Margin",
+        "month": "Month",
+        "amount": "Amount",
+        "profit_margin_label": "Profit Margin",
+        "category": "Category",
+        "share": "Share",
+        "download": "Download Full Report",
+        "insights_disclaimer": "These insights are generated based on standard financial benchmarks. They are not a substitute for professional financial advice.",
+        "best_month": "Best Month",
+        "worst_month": "Worst Month",
+        "avg_profit": "Avg Monthly Profit",
+        "profit_word": "profit",
+        "about_problem_title": "The Problem",
+        "about_problem": "Most small business owners are too busy running their business to analyze their own financial data. They rely on gut feeling instead of numbers. By the time they realize something is wrong, it is often too late to course-correct.",
+        "about_solution_title": "The Solution",
+        "about_solution": "Abacus turns raw financial data into a clear, actionable diagnostic report in under 30 seconds. No accounting degree required. No expensive consultants. Just upload your spreadsheet and get the clarity you need to make better decisions.",
+        "about_principles_title": "Our Principles",
+        "about_principle_1": "Data over intuition \u2014 every recommendation is grounded in your actual numbers, not assumptions.",
+        "about_principle_2": "Simplicity over complexity \u2014 we surface what matters and cut the noise.",
+        "about_principle_3": "Transparency over black boxes \u2014 you see exactly how every metric is calculated.",
+        "about_built": "Built by Abacus Labs",
+        # Insights
+        "insight_strong_nm": "Strong net margin indicates efficient cost management. Consider reinvesting surplus into growth channels.",
+        "insight_moderate_nm": "Net margin is moderate. Review your largest expense categories for potential optimization.",
+        "insight_thin_nm": "Net margin is thin. Immediate attention needed on cost structure \u2014 identify and reduce non-essential spending.",
+        "insight_strong_gm": "Gross margin is healthy, suggesting good pricing power or low direct costs.",
+        "insight_weak_gm": "Gross margin is below average. Evaluate supplier contracts and consider renegotiating terms or finding alternatives.",
+        "insight_strong_growth": "Revenue growth is strong. Ensure operational capacity can sustain this pace \u2014 watch for cash flow strain during rapid expansion.",
+        "insight_steady_growth": "Steady growth trajectory. Look for opportunities to accelerate through targeted marketing or expanding service offerings.",
+        "insight_decline": "Revenue is declining. Prioritize customer retention and investigate root causes \u2014 market shift, competition, or seasonal factors.",
+        "insight_top_cost": "Your largest cost driver is {name} at {pct:.0f}% of total expenses. High concentration in one category increases vulnerability.",
+        "insight_seasonality": "Peak profitability occurs in {best}. Consider aligning major initiatives and inventory buildup ahead of this period. {worst} is your weakest month \u2014 plan reserves accordingly.",
+    },
+    "zh": {
+        "app_name": "Abacus",
+        "tagline": "\u8d22\u52a1\u6d1e\u5bdf\uff0c\u5316\u7e41\u4e3a\u7b80",
+        "data_source": "\u6570\u636e\u6765\u6e90",
+        "upload_file": "\u4e0a\u4f20\u6587\u4ef6",
+        "demo_data": "\u6f14\u793a\u6570\u636e",
+        "upload_label": "\u4e0a\u4f20\u4f60\u7684\u8d22\u52a1\u6570\u636e",
+        "upload_help": "Excel \u6216 CSV \u6587\u4ef6\uff0c\u5305\u542b\u6708\u4efd\u3001\u8425\u6536\u548c\u5404\u9879\u652f\u51fa",
+        "loaded_rows": "\u5df2\u52a0\u8f7d {n} \u884c\u6570\u636e",
+        "using_sample": "\u6b63\u5728\u4f7f\u7528\u6f14\u793a\u6570\u636e",
+        "sidebar_desc": "\u4e0a\u4f20\u6708\u5ea6\u8425\u6536\u4e0e\u652f\u51fa\u6570\u636e\uff0cAbacus \u4f1a\u81ea\u52a8\u751f\u6210\u8bca\u65ad\u62a5\u544a\u548c\u53ef\u6267\u884c\u7684\u5efa\u8bae",
+        "landing_headline": "\u4e0a\u4f20\u8d22\u52a1\u6570\u636e\uff0c30\u79d2\u5185\u83b7\u5f97\u6e05\u6670\u7684\u8bca\u65ad\u62a5\u544a",
+        "landing_sub": "\u6ca1\u6709\u672f\u8bed\uff0c\u6ca1\u6709\u590d\u6742\u6027\u2014\u2014\u53ea\u6709\u771f\u6b63\u91cd\u8981\u7684\u6570\u5b57",
+        "landing_hint": "\u4f7f\u7528\u4fa7\u8fb9\u680f\u4e0a\u4f20 Excel \u6216 CSV \u6587\u4ef6\uff0c\u6216\u9009\u62e9\u6f14\u793a\u6570\u636e\u8fdb\u884c\u63a2\u7d22",
+        "how_title": "\u5982\u4f55\u4f7f\u7528",
+        "how_1": "\u4e0a\u4f20\u5305\u542b\u6708\u5ea6\u8425\u6536\u548c\u652f\u51fa\u7684\u7535\u5b50\u8868\u683c",
+        "how_2": "Abacus \u81ea\u52a8\u8ba1\u7b97\u5229\u6da6\u7387\u3001\u8d8b\u52bf\u548c\u98ce\u9669\u6307\u6807",
+        "how_3": "\u9605\u8bfb\u8bca\u65ad\u62a5\u544a\uff0c\u6839\u636e\u5efa\u8bae\u91c7\u53d6\u884c\u52a8",
+        "footer": "Abacus \u2014 \u6e05\u6670\u80dc\u4e8e\u590d\u6742",
+        "report_title": "\u8d22\u52a1\u8bca\u65ad\u62a5\u544a",
+        "revenue": "\u8425\u6536",
+        "expenses": "\u652f\u51fa",
+        "net_profit": "\u51c0\u5229\u6da6",
+        "net_margin": "\u51c0\u5229\u6da6\u7387",
+        "growth": "\u589e\u957f\u7387",
+        "health_check": "\u5065\u5eb7\u68c0\u67e5",
+        "gross_margin": "\u6bdb\u5229\u7387",
+        "revenue_growth": "\u8425\u6536\u589e\u957f",
+        "profitable_months": "\u76c8\u5229\u6708\u4efd",
+        "healthy": "\u5065\u5eb7",
+        "caution": "\u8b66\u544a",
+        "at_risk": "\u9ad8\u98ce\u9669",
+        "tab_trends": "\u8d8b\u52bf",
+        "tab_costs": "\u6210\u672c\u7ed3\u6784",
+        "tab_data": "\u6570\u636e",
+        "tab_insights": "\u5206\u6790\u5efa\u8bae",
+        "tab_about": "\u5173\u4e8e",
+        "rev_vs_profit": "\u8425\u6536 vs \u51c0\u5229\u6da6",
+        "monthly_margin": "\u6708\u5ea6\u5229\u6da6\u7387",
+        "month": "\u6708\u4efd",
+        "amount": "\u91d1\u989d",
+        "profit_margin_label": "\u5229\u6da6\u7387",
+        "category": "\u7c7b\u522b",
+        "share": "\u5360\u6bd4",
+        "download": "\u4e0b\u8f7d\u5b8c\u6574\u62a5\u544a",
+        "insights_disclaimer": "\u8fd9\u4e9b\u5efa\u8bae\u57fa\u4e8e\u6807\u51c6\u8d22\u52a1\u57fa\u51c6\u751f\u6210\uff0c\u4e0d\u80fd\u66ff\u4ee3\u4e13\u4e1a\u8d22\u52a1\u5efa\u8bae",
+        "best_month": "\u6700\u4f73\u6708\u4efd",
+        "worst_month": "\u6700\u5dee\u6708\u4efd",
+        "avg_profit": "\u6708\u5747\u5229\u6da6",
+        "profit_word": "\u5229\u6da6",
+        "about_problem_title": "\u75db\u70b9",
+        "about_problem": "\u5927\u591a\u6570\u5c0f\u4f01\u4e1a\u4e3b\u6bcf\u5929\u5fd9\u4e8e\u7ecf\u8425\uff0c\u6839\u672c\u6ca1\u65f6\u95f4\u5206\u6790\u81ea\u5df1\u7684\u8d22\u52a1\u6570\u636e\u3002\u4ed6\u4eec\u4f9d\u8d56\u76f4\u89c9\u800c\u975e\u6570\u5b57\u505a\u51b3\u7b56\u3002\u7b49\u5230\u53d1\u73b0\u95ee\u9898\u7684\u65f6\u5019\uff0c\u5f80\u5f80\u5df2\u7ecf\u6765\u4e0d\u53ca\u7ea0\u6b63\u4e86",
+        "about_solution_title": "\u89e3\u51b3\u65b9\u6848",
+        "about_solution": "Abacus \u80fd\u5728 30 \u79d2\u5185\u5c06\u539f\u59cb\u8d22\u52a1\u6570\u636e\u8f6c\u5316\u4e3a\u6e05\u6670\u3001\u53ef\u6267\u884c\u7684\u8bca\u65ad\u62a5\u544a\u3002\u4e0d\u9700\u8981\u4f1a\u8ba1\u5b66\u4f4d\uff0c\u4e0d\u9700\u8981\u6602\u8d35\u7684\u987e\u95ee\u3002\u4e0a\u4f20\u7535\u5b50\u8868\u683c\uff0c\u83b7\u5f97\u4f60\u505a\u51fa\u66f4\u597d\u51b3\u7b56\u6240\u9700\u7684\u6e05\u6670\u5ea6",
+        "about_principles_title": "\u6211\u4eec\u7684\u539f\u5219",
+        "about_principle_1": "\u6570\u636e\u9a71\u52a8\u51b3\u7b56 \u2014\u2014 \u6bcf\u4e00\u6761\u5efa\u8bae\u90fd\u57fa\u4e8e\u4f60\u7684\u5b9e\u9645\u6570\u5b57\uff0c\u800c\u975e\u5047\u8bbe",
+        "about_principle_2": "\u7b80\u6d01\u80dc\u4e8e\u590d\u6742 \u2014\u2014 \u6211\u4eec\u53ea\u5c55\u793a\u771f\u6b63\u91cd\u8981\u7684\u4fe1\u606f\uff0c\u8fc7\u6ee4\u5668\u566a\u97f3",
+        "about_principle_3": "\u900f\u660e\u80dc\u4e8e\u9ed1\u7bb1 \u2014\u2014 \u4f60\u53ef\u4ee5\u770b\u5230\u6bcf\u4e2a\u6307\u6807\u7684\u8ba1\u7b97\u65b9\u5f0f",
+        "about_built": "\u7531 Abacus Labs \u6784\u5efa",
+        "insight_strong_nm": "\u51c0\u5229\u6da6\u7387\u8868\u73b0\u5f3a\u52b2\uff0c\u8bf4\u660e\u6210\u672c\u63a7\u5236\u5f97\u5f53\u3002\u53ef\u4ee5\u8003\u8651\u5c06\u76c8\u4f59\u518d\u6295\u8d44\u5230\u589e\u957f\u6e20\u9053",
+        "insight_moderate_nm": "\u51c0\u5229\u6da6\u7387\u4e2d\u7b49\u3002\u5efa\u8bae\u5ba1\u67e5\u6700\u5927\u7684\u652f\u51fa\u7c7b\u522b\uff0c\u5bfb\u627e\u4f18\u5316\u7a7a\u95f4",
+        "insight_thin_nm": "\u51c0\u5229\u6da6\u7387\u8f83\u4f4e\uff0c\u9700\u8981\u7acb\u5373\u5173\u6ce8\u6210\u672c\u7ed3\u6784\u2014\u2014\u8bc6\u522b\u5e76\u51cf\u5c11\u975e\u5fc5\u8981\u652f\u51fa",
+        "insight_strong_gm": "\u6bdb\u5229\u7387\u5065\u5eb7\uff0c\u8868\u660e\u5b9a\u4ef7\u80fd\u529b\u5f3a\u6216\u76f4\u63a5\u6210\u672c\u8f83\u4f4e",
+        "insight_weak_gm": "\u6bdb\u5229\u7387\u4f4e\u4e8e\u5e73\u5747\u6c34\u5e73\u3002\u5efa\u8bae\u8bc4\u4f30\u4f9b\u5e94\u5546\u5408\u540c\uff0c\u8003\u8651\u91cd\u65b0\u8c08\u5224\u6761\u6b3e\u6216\u5bfb\u627e\u66ff\u4ee3\u65b9\u6848",
+        "insight_strong_growth": "\u8425\u6536\u589e\u957f\u5f3a\u52b2\u3002\u786e\u4fdd\u8fd0\u8425\u80fd\u529b\u80fd\u591f\u652f\u6491\u8fd9\u4e2a\u901f\u5ea6\u2014\u2014\u6ce8\u610f\u5feb\u901f\u6269\u5f20\u671f\u95f4\u7684\u73b0\u91d1\u6d41\u538b\u529b",
+        "insight_steady_growth": "\u589e\u957f\u8d8b\u52bf\u7a33\u5b9a\u3002\u5bfb\u627e\u901a\u8fc7\u7cbe\u51c6\u8425\u9500\u6216\u6269\u5c55\u670d\u52a1\u6765\u52a0\u901f\u589e\u957f\u7684\u673a\u4f1a",
+        "insight_decline": "\u8425\u6536\u6b63\u5728\u4e0b\u964d\u3002\u4f18\u5148\u5173\u6ce8\u5ba2\u6237\u7559\u5b58\uff0c\u8c03\u67e5\u6839\u672c\u539f\u56e0\u2014\u2014\u5e02\u573a\u53d8\u5316\u3001\u7ade\u4e89\u6216\u5b63\u8282\u6027\u56e0\u7d20",
+        "insight_top_cost": "\u6700\u5927\u7684\u6210\u672c\u9a71\u52a8\u56e0\u7d20\u662f {name}\uff0c\u5360\u603b\u652f\u51fa\u7684 {pct:.0f}%\u3002\u5355\u4e00\u7c7b\u522b\u5360\u6bd4\u8fc7\u9ad8\u4f1a\u589e\u52a0\u8106\u5f31\u6027",
+        "insight_seasonality": "\u5229\u6da6\u5cf0\u503c\u51fa\u73b0\u5728 {best}\u3002\u5efa\u8bae\u5728\u6b64\u4e4b\u524d\u505a\u597d\u91cd\u5927\u4e3e\u63aa\u548c\u5e93\u5b58\u50a8\u5907\u3002{worst} \u662f\u6700\u5f31\u7684\u6708\u4efd\u2014\u2014\u63d0\u524d\u505a\u597d\u50a8\u5907\u89c4\u5212",
+    },
+    "es": {
+        "app_name": "Abacus",
+        "tagline": "Claridad financiera, simplificada.",
+        "data_source": "Fuente de datos",
+        "upload_file": "Subir archivo",
+        "demo_data": "Datos de prueba",
+        "upload_label": "Sube tus datos financieros",
+        "upload_help": "Excel o CSV con columnas: Mes, Ingresos y categor\u00edas de gastos",
+        "loaded_rows": "{n} filas cargadas",
+        "using_sample": "Usando datos de prueba",
+        "sidebar_desc": "Sube datos mensuales de ingresos y gastos. Abacus genera un informe de diagn\u00f3stico con recomendaciones pr\u00e1cticas.",
+        "landing_headline": "Sube tus datos financieros. Obt\u00e9n un diagn\u00f3stico claro en segundos.",
+        "landing_sub": "Sin jerga, sin complejidad \u2014 solo los n\u00fameros que importan.",
+        "landing_hint": "Usa la barra lateral para subir un archivo Excel o CSV, o selecciona Datos de prueba para explorar.",
+        "how_title": "C\u00f3mo funciona",
+        "how_1": "Sube una hoja de c\u00e1lculo con ingresos y gastos mensuales.",
+        "how_2": "Abacus calcula m\u00e1rgenes, tendencias e indicadores de riesgo.",
+        "how_3": "Lee tu informe de diagn\u00f3stico y act\u00faa seg\u00fan las recomendaciones.",
+        "footer": "Abacus \u2014 claridad sobre complejidad",
+        "report_title": "Informe de Diagn\u00f3stico Financiero",
+        "revenue": "Ingresos",
+        "expenses": "Gastos",
+        "net_profit": "Beneficio Neto",
+        "net_margin": "Margen Neto",
+        "growth": "Crecimiento",
+        "health_check": "Chequeo de Salud",
+        "gross_margin": "Margen Bruto",
+        "revenue_growth": "Crecimiento de Ingresos",
+        "profitable_months": "Meses Rentables",
+        "healthy": "Saludable",
+        "caution": "Precauci\u00f3n",
+        "at_risk": "En Riesgo",
+        "tab_trends": "Tendencias",
+        "tab_costs": "Estructura de Costos",
+        "tab_data": "Datos",
+        "tab_insights": "An\u00e1lisis",
+        "tab_about": "Acerca de",
+        "rev_vs_profit": "Ingresos vs Beneficio Neto",
+        "monthly_margin": "Margen de Beneficio Mensual",
+        "month": "Mes",
+        "amount": "Monto",
+        "profit_margin_label": "Margen de Beneficio",
+        "category": "Categor\u00eda",
+        "share": "Proporci\u00f3n",
+        "download": "Descargar Informe Completo",
+        "insights_disclaimer": "Estas recomendaciones se generan en base a est\u00e1ndares financieros. No sustituyen el asesoramiento financiero profesional.",
+        "best_month": "Mejor Mes",
+        "worst_month": "Peor Mes",
+        "avg_profit": "Beneficio Mensual Promedio",
+        "profit_word": "beneficio",
+        "about_problem_title": "El Problema",
+        "about_problem": "La mayor\u00eda de los due\u00f1os de peque\u00f1os negocios est\u00e1n demasiado ocupados para analizar sus propios datos financieros. Se basan en la intuici\u00f3n en lugar de los n\u00fameros. Cuando se dan cuenta de que algo est\u00e1 mal, a menudo es demasiado tarde para corregir el rumbo.",
+        "about_solution_title": "La Soluci\u00f3n",
+        "about_solution": "Abacus convierte datos financieros en bruto en un informe de diagn\u00f3stico claro y pr\u00e1ctico en menos de 30 segundos. Sin necesidad de un t\u00edtulo en contabilidad. Sin consultores costosos. Solo sube tu hoja de c\u00e1lculo y obt\u00e9n la claridad que necesitas para tomar mejores decisiones.",
+        "about_principles_title": "Nuestros Principios",
+        "about_principle_1": "Datos sobre intuici\u00f3n \u2014 cada recomendaci\u00f3n se basa en tus n\u00fameros reales, no en suposiciones.",
+        "about_principle_2": "Simplicidad sobre complejidad \u2014 mostramos lo que importa y eliminamos el ruido.",
+        "about_principle_3": "Transparencia sobre cajas negras \u2014 puedes ver exactamente c\u00f3mo se calcula cada m\u00e9trica.",
+        "about_built": "Desarrollado por Abacus Labs",
+        "insight_strong_nm": "El margen neto fuerte indica una gesti\u00f3n eficiente de costos. Considere reinvertir el excedente en canales de crecimiento.",
+        "insight_moderate_nm": "El margen neto es moderado. Revise sus mayores categor\u00edas de gastos para posibles optimizaciones.",
+        "insight_thin_nm": "El margen neto es delgado. Se necesita atenci\u00f3n inmediata en la estructura de costos \u2014 identifique y reduzca gastos no esenciales.",
+        "insight_strong_gm": "El margen bruto es saludable, lo que sugiere buen poder de fijaci\u00f3n de precios o bajos costos directos.",
+        "insight_weak_gm": "El margen bruto est\u00e1 por debajo del promedio. Eval\u00fae contratos con proveedores y considere renegociar t\u00e9rminos.",
+        "insight_strong_growth": "El crecimiento de ingresos es fuerte. Aseg\u00farese de que la capacidad operativa pueda sostener este ritmo.",
+        "insight_steady_growth": "Trayectoria de crecimiento estable. Busque oportunidades para acelerar a trav\u00e9s de marketing dirigido.",
+        "insight_decline": "Los ingresos est\u00e1n disminuyendo. Priorice la retenci\u00f3n de clientes e investigue las causas ra\u00edz.",
+        "insight_top_cost": "Su mayor impulsor de costos es {name} con el {pct:.0f}% de los gastos totales. Alta concentraci\u00f3n en una categor\u00eda aumenta la vulnerabilidad.",
+        "insight_seasonality": "La rentabilidad m\u00e1xima ocurre en {best}. Considere alinear iniciativas importantes antes de este per\u00edodo. {worst} es su mes m\u00e1s d\u00e9bil \u2014 planifique reservas en consecuencia.",
+    }
+}
+
+
+# ============================================================
+# Custom CSS
+# ============================================================
 st.markdown(f"""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Source+Serif+4:wght@400;600&display=swap');
@@ -146,7 +368,6 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663291964821/QjDLltQWooriJzwW.png"
 
 # ============================================================
 # Helper Functions
@@ -155,54 +376,54 @@ LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519
 def traffic_light(value, good_threshold, bad_threshold, higher_is_better=True):
     if higher_is_better:
         if value >= good_threshold:
-            return "Healthy", "#2E7D32"
+            return t["healthy"], "#2E7D32"
         elif value >= bad_threshold:
-            return "Caution", "#F57F17"
+            return t["caution"], "#F57F17"
         else:
-            return "At Risk", "#C62828"
+            return t["at_risk"], "#C62828"
     else:
         if value <= good_threshold:
-            return "Healthy", "#2E7D32"
+            return t["healthy"], "#2E7D32"
         elif value <= bad_threshold:
-            return "Caution", "#F57F17"
+            return t["caution"], "#F57F17"
         else:
-            return "At Risk", "#C62828"
+            return t["at_risk"], "#C62828"
 
 
-def generate_insights(results):
+def generate_insights(results, t):
     insights = []
     nm = results['net_margin']
     gm = results['gross_margin']
     growth = results['revenue_growth']
 
     if nm > 15:
-        insights.append("Strong net margin indicates efficient cost management. Consider reinvesting surplus into growth channels.")
+        insights.append(t["insight_strong_nm"])
     elif nm > 5:
-        insights.append("Net margin is moderate. Review your largest expense categories for potential optimization.")
+        insights.append(t["insight_moderate_nm"])
     else:
-        insights.append("Net margin is thin. Immediate attention needed on cost structure \u2014 identify and reduce non-essential spending.")
+        insights.append(t["insight_thin_nm"])
 
     if gm > 60:
-        insights.append("Gross margin is healthy, suggesting good pricing power or low direct costs.")
+        insights.append(t["insight_strong_gm"])
     elif gm < 40:
-        insights.append("Gross margin is below average. Evaluate supplier contracts and consider renegotiating terms or finding alternatives.")
+        insights.append(t["insight_weak_gm"])
 
     if growth > 30:
-        insights.append("Revenue growth is strong. Ensure operational capacity can sustain this pace \u2014 watch for cash flow strain during rapid expansion.")
+        insights.append(t["insight_strong_growth"])
     elif growth > 0:
-        insights.append("Steady growth trajectory. Look for opportunities to accelerate through targeted marketing or expanding service offerings.")
+        insights.append(t["insight_steady_growth"])
     else:
-        insights.append("Revenue is declining. Prioritize customer retention and investigate root causes \u2014 market shift, competition, or seasonal factors.")
+        insights.append(t["insight_decline"])
 
     sorted_costs = sorted(results['cost_breakdown'].items(), key=lambda x: x[1], reverse=True)
     top_cost = sorted_costs[0]
     pct = (top_cost[1] / results['total_expenses']) * 100
     if pct > 35:
-        insights.append(f"Your largest cost driver is {top_cost[0]} at {pct:.0f}% of total expenses. High concentration in one category increases vulnerability.")
+        insights.append(t["insight_top_cost"].format(name=top_cost[0], pct=pct))
 
     best = results['best_month']
     worst = results['worst_month']
-    insights.append(f"Peak profitability occurs in {best}. Consider aligning major initiatives and inventory buildup ahead of this period. {worst} is your weakest month \u2014 plan reserves accordingly.")
+    insights.append(t["insight_seasonality"].format(best=best, worst=worst))
 
     return insights
 
@@ -317,26 +538,36 @@ with st.sidebar:
         f'</div>',
         unsafe_allow_html=True
     )
+
+    # Language selector
+    lang_choice = st.selectbox(
+        "Language",
+        ["English", "\u4e2d\u6587", "Espa\u00f1ol"],
+        label_visibility="collapsed"
+    )
+    lang_map = {"English": "en", "\u4e2d\u6587": "zh", "Espa\u00f1ol": "es"}
+    t = TRANSLATIONS[lang_map[lang_choice]]
+
     st.markdown(
-        f'<p style="color:#888; font-size:0.8rem; margin-top:-8px;">Financial clarity, simplified.</p>',
+        f'<p style="color:#888; font-size:0.8rem; margin-top:-8px;">{t["tagline"]}</p>',
         unsafe_allow_html=True
     )
     st.markdown("---")
 
-    st.markdown("##### Data Source")
+    st.markdown(f'##### {t["data_source"]}')
     data_source = st.radio(
         "Choose input method",
-        ["Upload File", "Demo Data"],
+        [t["upload_file"], t["demo_data"]],
         label_visibility="collapsed"
     )
 
     df = None
 
-    if data_source == "Upload File":
+    if data_source == t["upload_file"]:
         uploaded_file = st.file_uploader(
-            "Upload your financial data",
+            t["upload_label"],
             type=['xlsx', 'xls', 'csv'],
-            help="Excel or CSV with columns: Month, Revenue, and expense categories"
+            help=t["upload_help"]
         )
         if uploaded_file:
             try:
@@ -344,22 +575,21 @@ with st.sidebar:
                     df = pd.read_csv(uploaded_file)
                 else:
                     df = pd.read_excel(uploaded_file)
-                st.success(f"Loaded {len(df)} rows")
+                st.success(t["loaded_rows"].format(n=len(df)))
             except Exception as e:
                 st.error(f"Error: {e}")
     else:
         df = create_demo_data()
         st.markdown(
-            f'<p style="color:{INDIGO}; font-size:0.82rem;">Using sample data</p>',
+            f'<p style="color:{INDIGO}; font-size:0.82rem;">{t["using_sample"]}</p>',
             unsafe_allow_html=True
         )
 
     st.markdown("---")
     st.markdown(
-        '<p style="color:#999; font-size:0.72rem; line-height:1.5;">'
-        'Upload monthly revenue and expense data. '
-        'Abacus generates a diagnostic report with actionable insights.'
-        '</p>',
+        f'<p style="color:#999; font-size:0.72rem; line-height:1.5;">'
+        f'{t["sidebar_desc"]}'
+        f'</p>',
         unsafe_allow_html=True
     )
 
@@ -382,35 +612,40 @@ if df is None:
             unsafe_allow_html=True
         )
         st.markdown(
-            '<p style="color:#666; font-size:1.1rem; line-height:1.7; max-width:520px;">'
-            'Upload your financial data. Get a clear diagnostic in seconds. '
-            'No jargon, no complexity \u2014 just the numbers that matter.'
-            '</p>',
+            f'<p style="color:#666; font-size:1.1rem; line-height:1.7; max-width:520px;">'
+            f'{t["landing_headline"]}'
+            f'</p>',
+            unsafe_allow_html=True
+        )
+        st.markdown(
+            f'<p style="color:#999; font-size:0.95rem; max-width:520px;">'
+            f'{t["landing_sub"]}'
+            f'</p>',
             unsafe_allow_html=True
         )
         st.markdown("")
         st.markdown(
             f'<p style="color:#999; font-size:0.85rem;">'
-            'Use the sidebar to upload an Excel or CSV file, or select Demo Data to explore.'
-            '</p>',
+            f'{t["landing_hint"]}'
+            f'</p>',
             unsafe_allow_html=True
         )
 
         st.markdown("---")
 
-        st.markdown("##### How it works")
+        st.markdown(f'##### {t["how_title"]}')
         st.markdown(
             f'<p style="color:#555; font-size:0.9rem; line-height:1.8;">'
-            f'<strong style="color:{INDIGO};">1.</strong> Upload a spreadsheet with monthly revenue and expenses.<br>'
-            f'<strong style="color:{INDIGO};">2.</strong> Abacus calculates margins, trends, and risk indicators.<br>'
-            f'<strong style="color:{INDIGO};">3.</strong> Read your diagnostic report and act on the insights.'
+            f'<strong style="color:{INDIGO};">1.</strong> {t["how_1"]}<br>'
+            f'<strong style="color:{INDIGO};">2.</strong> {t["how_2"]}<br>'
+            f'<strong style="color:{INDIGO};">3.</strong> {t["how_3"]}'
             f'</p>',
             unsafe_allow_html=True
         )
 
         st.markdown("---")
         st.markdown(
-            '<p class="footer-text">Abacus \u2014 clarity over complexity</p>',
+            f'<p class="footer-text">{t["footer"]}</p>',
             unsafe_allow_html=True
         )
 
@@ -429,30 +664,30 @@ else:
         unsafe_allow_html=True
     )
     st.markdown(
-        '<p style="color:#7986CB; font-size:0.85rem; margin-top:-4px;">Financial Diagnostic Report</p>',
+        f'<p style="color:#7986CB; font-size:0.85rem; margin-top:-4px;">{t["report_title"]}</p>',
         unsafe_allow_html=True
     )
     st.markdown("---")
 
     # ---- Key Metrics ----
     c1, c2, c3, c4, c5 = st.columns(5)
-    c1.metric("Revenue", f"${results['total_revenue']:,.0f}")
-    c2.metric("Expenses", f"${results['total_expenses']:,.0f}")
-    c3.metric("Net Profit", f"${results['total_profit']:,.0f}")
-    c4.metric("Net Margin", f"{results['net_margin']:.1f}%")
-    c5.metric("Growth", f"{results['revenue_growth']:.1f}%")
+    c1.metric(t["revenue"], f"${results['total_revenue']:,.0f}")
+    c2.metric(t["expenses"], f"${results['total_expenses']:,.0f}")
+    c3.metric(t["net_profit"], f"${results['total_profit']:,.0f}")
+    c4.metric(t["net_margin"], f"{results['net_margin']:.1f}%")
+    c5.metric(t["growth"], f"{results['revenue_growth']:.1f}%")
 
     st.markdown("")
 
     # ---- Health Check ----
-    st.markdown("##### Health Check")
+    st.markdown(f'##### {t["health_check"]}')
     h1, h2, h3, h4 = st.columns(4)
 
     checks = [
-        ("Gross Margin", results['gross_margin'], 50, 30, True),
-        ("Net Margin", results['net_margin'], 10, 5, True),
-        ("Revenue Growth", results['revenue_growth'], 20, 0, True),
-        ("Profitable Months", (results['months_profitable']/results['total_months'])*100, 80, 50, True),
+        (t["gross_margin"], results['gross_margin'], 50, 30, True),
+        (t["net_margin"], results['net_margin'], 10, 5, True),
+        (t["revenue_growth"], results['revenue_growth'], 20, 0, True),
+        (t["profitable_months"], (results['months_profitable']/results['total_months'])*100, 80, 50, True),
     ]
 
     for col, (label, val, good, bad, higher) in zip([h1, h2, h3, h4], checks):
@@ -469,24 +704,25 @@ else:
     st.markdown("")
 
     # ---- Tabs ----
-    tab1, tab2, tab3, tab4 = st.tabs(["Trends", "Cost Structure", "Data", "Insights"])
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        t["tab_trends"], t["tab_costs"], t["tab_data"], t["tab_insights"], t["tab_about"]
+    ])
 
     with tab1:
         st.markdown("")
-
         x_axis = m[month_col] if month_col else m.index
 
         fig1 = go.Figure()
         fig1.add_trace(go.Scatter(
             x=x_axis, y=m[rev_col],
-            name='Revenue',
+            name=t["revenue"],
             line=dict(color=INDIGO, width=2.5),
             mode='lines+markers',
             marker=dict(size=5)
         ))
         fig1.add_trace(go.Scatter(
             x=x_axis, y=m['Net_Profit'],
-            name='Net Profit',
+            name=t["net_profit"],
             line=dict(color='#2E7D32', width=2),
             mode='lines+markers',
             marker=dict(size=5),
@@ -494,14 +730,14 @@ else:
             fillcolor='rgba(46,125,50,0.06)'
         ))
         fig1.update_layout(
-            title=dict(text='Revenue vs Net Profit', font=dict(size=14, color='#333')),
+            title=dict(text=t["rev_vs_profit"], font=dict(size=14, color='#333')),
             plot_bgcolor='#ffffff',
             paper_bgcolor='#ffffff',
             font=dict(family='Inter', size=12, color='#666'),
             legend=dict(orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1),
             margin=dict(l=40, r=20, t=40, b=40),
-            xaxis=dict(gridcolor='#f0f0f0', title='Month'),
-            yaxis=dict(gridcolor='#f0f0f0', tickprefix='$', title='Amount'),
+            xaxis=dict(gridcolor='#f0f0f0', title=t["month"]),
+            yaxis=dict(gridcolor='#f0f0f0', tickprefix='$', title=t["amount"]),
             height=380
         )
         st.plotly_chart(fig1, use_container_width=True)
@@ -513,13 +749,13 @@ else:
             opacity=0.85
         ))
         fig2.update_layout(
-            title=dict(text='Monthly Profit Margin', font=dict(size=14, color='#333')),
+            title=dict(text=t["monthly_margin"], font=dict(size=14, color='#333')),
             plot_bgcolor='#ffffff',
             paper_bgcolor='#ffffff',
             font=dict(family='Inter', size=12, color='#666'),
             margin=dict(l=40, r=20, t=40, b=40),
-            xaxis=dict(gridcolor='#f0f0f0', title='Month'),
-            yaxis=dict(gridcolor='#f0f0f0', ticksuffix='%', title='Profit Margin'),
+            xaxis=dict(gridcolor='#f0f0f0', title=t["month"]),
+            yaxis=dict(gridcolor='#f0f0f0', ticksuffix='%', title=t["profit_margin_label"]),
             height=280,
             showlegend=False
         )
@@ -527,7 +763,6 @@ else:
 
     with tab2:
         st.markdown("")
-
         col_pie, col_table = st.columns([1, 1])
 
         with col_pie:
@@ -556,10 +791,10 @@ else:
 
         with col_table:
             sorted_costs = sorted(results['cost_breakdown'].items(), key=lambda x: x[1], reverse=True)
-            cost_df = pd.DataFrame(sorted_costs, columns=['Category', 'Amount'])
-            cost_df['Share'] = (cost_df['Amount'] / cost_df['Amount'].sum() * 100).round(1)
-            cost_df['Amount'] = cost_df['Amount'].apply(lambda x: f"${x:,.0f}")
-            cost_df['Share'] = cost_df['Share'].apply(lambda x: f"{x}%")
+            cost_df = pd.DataFrame(sorted_costs, columns=[t["category"], t["amount"]])
+            cost_df[t["share"]] = (cost_df[t["amount"]] / cost_df[t["amount"]].sum() * 100).round(1)
+            cost_df[t["amount"]] = cost_df[t["amount"]].apply(lambda x: f"${x:,.0f}")
+            cost_df[t["share"]] = cost_df[t["share"]].apply(lambda x: f"{x}%")
             st.dataframe(cost_df, use_container_width=True, hide_index=True)
 
     with tab3:
@@ -572,7 +807,7 @@ else:
         m.to_excel(output, index=False)
         output.seek(0)
         st.download_button(
-            label="Download Full Report",
+            label=t["download"],
             data=output,
             file_name="abacus_report.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -580,7 +815,7 @@ else:
 
     with tab4:
         st.markdown("")
-        insights = generate_insights(results)
+        insights = generate_insights(results, t)
 
         for i, insight in enumerate(insights, 1):
             st.markdown(
@@ -592,10 +827,58 @@ else:
 
         st.markdown("")
         st.markdown(
-            '<p style="color:#bbb; font-size:0.75rem;">'
-            'These insights are generated based on standard financial benchmarks. '
-            'They are not a substitute for professional financial advice.'
-            '</p>',
+            f'<p style="color:#bbb; font-size:0.75rem;">'
+            f'{t["insights_disclaimer"]}'
+            f'</p>',
+            unsafe_allow_html=True
+        )
+
+    with tab5:
+        st.markdown("")
+
+        # About page content
+        st.markdown(
+            f'<div style="max-width:640px;">'
+            f'<h2 style="font-family:Source Serif 4,serif !important; font-size:1.6rem; color:#1a1a2e; margin-bottom:4px;">Abacus</h2>'
+            f'<p style="color:#7986CB; font-size:0.9rem; margin-bottom:32px;">{t["tagline"]}</p>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f'<div style="max-width:640px; margin-bottom:28px;">'
+            f'<p style="color:{INDIGO}; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; font-weight:600; margin-bottom:8px;">{t["about_problem_title"]}</p>'
+            f'<p style="color:#444; font-size:0.92rem; line-height:1.75;">{t["about_problem"]}</p>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f'<div style="max-width:640px; margin-bottom:28px;">'
+            f'<p style="color:{INDIGO}; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; font-weight:600; margin-bottom:8px;">{t["about_solution_title"]}</p>'
+            f'<p style="color:#444; font-size:0.92rem; line-height:1.75;">{t["about_solution"]}</p>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f'<div style="max-width:640px; margin-bottom:28px;">'
+            f'<p style="color:{INDIGO}; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.1em; font-weight:600; margin-bottom:12px;">{t["about_principles_title"]}</p>'
+            f'<div style="border-left:3px solid {INDIGO}; padding:12px 18px; margin-bottom:10px; background:#fafbff; border-radius:0 8px 8px 0;">'
+            f'<p style="color:#333; font-size:0.88rem; line-height:1.65; margin:0;">{t["about_principle_1"]}</p>'
+            f'</div>'
+            f'<div style="border-left:3px solid #5C6BC0; padding:12px 18px; margin-bottom:10px; background:#fafbff; border-radius:0 8px 8px 0;">'
+            f'<p style="color:#333; font-size:0.88rem; line-height:1.65; margin:0;">{t["about_principle_2"]}</p>'
+            f'</div>'
+            f'<div style="border-left:3px solid #7986CB; padding:12px 18px; margin-bottom:10px; background:#fafbff; border-radius:0 8px 8px 0;">'
+            f'<p style="color:#333; font-size:0.88rem; line-height:1.65; margin:0;">{t["about_principle_3"]}</p>'
+            f'</div>'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            f'<p style="color:#bbb; font-size:0.78rem; margin-top:32px;">{t["about_built"]}</p>',
             unsafe_allow_html=True
         )
 
@@ -603,29 +886,29 @@ else:
     st.markdown("---")
     s1, s2, s3, s4 = st.columns(4)
     s1.markdown(
-        f'<p style="color:#7986CB; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.07em;">Best Month</p>'
+        f'<p style="color:#7986CB; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.07em;">{t["best_month"]}</p>'
         f'<p style="color:#1a1a2e; font-size:1rem; font-weight:600;">{results["best_month"]}</p>'
-        f'<p style="color:#2E7D32; font-size:0.8rem;">${results["best_profit"]:,.0f} profit</p>',
+        f'<p style="color:#2E7D32; font-size:0.8rem;">${results["best_profit"]:,.0f} {t["profit_word"]}</p>',
         unsafe_allow_html=True
     )
     s2.markdown(
-        f'<p style="color:#7986CB; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.07em;">Worst Month</p>'
+        f'<p style="color:#7986CB; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.07em;">{t["worst_month"]}</p>'
         f'<p style="color:#1a1a2e; font-size:1rem; font-weight:600;">{results["worst_month"]}</p>'
-        f'<p style="color:#C62828; font-size:0.8rem;">${results["worst_profit"]:,.0f} profit</p>',
+        f'<p style="color:#C62828; font-size:0.8rem;">${results["worst_profit"]:,.0f} {t["profit_word"]}</p>',
         unsafe_allow_html=True
     )
     s3.markdown(
-        f'<p style="color:#7986CB; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.07em;">Avg Monthly Profit</p>'
+        f'<p style="color:#7986CB; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.07em;">{t["avg_profit"]}</p>'
         f'<p style="color:#1a1a2e; font-size:1rem; font-weight:600;">${results["avg_monthly_profit"]:,.0f}</p>',
         unsafe_allow_html=True
     )
     s4.markdown(
-        f'<p style="color:#7986CB; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.07em;">Gross Margin</p>'
+        f'<p style="color:#7986CB; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.07em;">{t["gross_margin"]}</p>'
         f'<p style="color:#1a1a2e; font-size:1rem; font-weight:600;">{results["gross_margin"]:.1f}%</p>',
         unsafe_allow_html=True
     )
 
     st.markdown(
-        '<p class="footer-text">Abacus \u2014 clarity over complexity</p>',
+        f'<p class="footer-text">{t["footer"]}</p>',
         unsafe_allow_html=True
     )
