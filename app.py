@@ -679,12 +679,15 @@ with st.sidebar:
     )
 
     # Language selector
-    lang_choice = st.selectbox(
-        "Language",
-        ["English", "\u4e2d\u6587", "Espa\u00f1ol"],
+    lang_options = ["English", "\u4e2d\u6587", "Espa\u00f1ol"]
+    lang_map = {"English": "en", "\u4e2d\u6587": "zh", "Espa\u00f1ol": "es"}
+
+    lang_choice = st.radio(
+        "\U0001f310",
+        lang_options,
+        horizontal=True,
         label_visibility="collapsed"
     )
-    lang_map = {"English": "en", "\u4e2d\u6587": "zh", "Espa\u00f1ol": "es"}
     t = TRANSLATIONS[lang_map[lang_choice]]
 
     st.markdown(
